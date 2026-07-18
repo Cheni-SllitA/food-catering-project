@@ -17,5 +17,11 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // Data is fetched with plain Supabase calls (no react-query/SWR per spec),
+      // so pages intentionally call an async `load()` from useEffect and reuse
+      // it to refetch after mutations. That trips this rule on every page.
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])

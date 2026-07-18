@@ -1,121 +1,168 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import { AuthProvider } from './contexts/AuthContext'
+import { CartProvider } from './contexts/CartContext'
+import ProtectedRoute from './components/common/ProtectedRoute'
+import StorefrontLayout from './components/layout/StorefrontLayout'
+import DashboardLayout from './components/layout/DashboardLayout'
+
+import AuthLayout from './pages/auth/AuthLayout'
+import AuthPage from './pages/auth/AuthPage'
+
+import ProductCatalog from './pages/customer/ProductCatalog'
+import ProductDetail from './pages/customer/ProductDetail'
+import PackagesList from './pages/customer/PackagesList'
+import PackageDetail from './pages/customer/PackageDetail'
+import Cart from './pages/customer/Cart'
+import Checkout from './pages/customer/Checkout'
+import ReservationForm from './pages/customer/ReservationForm'
+import MyOrders from './pages/customer/MyOrders'
+import OrderDetail from './pages/customer/OrderDetail'
+import MyReservations from './pages/customer/MyReservations'
+import ReservationDetail from './pages/customer/ReservationDetail'
+
+import AdminDashboard from './pages/admin/AdminDashboard'
+import ProductsAdmin from './pages/admin/ProductsAdmin'
+import CategoriesAdmin from './pages/admin/CategoriesAdmin'
+import PackagesAdmin from './pages/admin/PackagesAdmin'
+import InventoryAdmin from './pages/admin/InventoryAdmin'
+import OrdersAdmin from './pages/admin/OrdersAdmin'
+import ReservationsAdmin from './pages/admin/ReservationsAdmin'
+import StaffAdmin from './pages/admin/StaffAdmin'
+import ReportsAdmin from './pages/admin/ReportsAdmin'
+
+import StaffTasks from './pages/staff/StaffTasks'
+
+import CateringManagerDashboard from './pages/catering-manager/CateringManagerDashboard'
+import EventBookingsManager from './pages/catering-manager/EventBookingsManager'
+import TasksManager from './pages/catering-manager/TasksManager'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <Toaster position="top-right" />
+          <Routes>
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<AuthPage mode="login" />} />
+              <Route path="/signup" element={<AuthPage mode="register" />} />
+            </Route>
 
-      <div className="ticks"></div>
+            <Route element={<StorefrontLayout />}>
+              <Route path="/" element={<ProductCatalog />} />
+              <Route path="/products/:id" element={<ProductDetail />} />
+              <Route path="/packages" element={<PackagesList />} />
+              <Route path="/packages/:id" element={<PackageDetail />} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+              <Route
+                path="/cart"
+                element={
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <Cart />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/checkout"
+                element={
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <Checkout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reserve/:packageId"
+                element={
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <ReservationForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-orders"
+                element={
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <MyOrders />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-orders/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <OrderDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-reservations"
+                element={
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <MyReservations />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-reservations/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <ReservationDetail />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={['administrator']}>
+                  <DashboardLayout role="administrator" />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="products" element={<ProductsAdmin />} />
+              <Route path="categories" element={<CategoriesAdmin />} />
+              <Route path="packages" element={<PackagesAdmin />} />
+              <Route path="inventory" element={<InventoryAdmin />} />
+              <Route path="orders" element={<OrdersAdmin />} />
+              <Route path="reservations" element={<ReservationsAdmin />} />
+              <Route path="staff" element={<StaffAdmin />} />
+              <Route path="reports" element={<ReportsAdmin />} />
+            </Route>
+
+            <Route
+              path="/staff"
+              element={
+                <ProtectedRoute allowedRoles={['staff']}>
+                  <DashboardLayout role="staff" />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<StaffTasks />} />
+            </Route>
+
+            <Route
+              path="/catering-manager"
+              element={
+                <ProtectedRoute allowedRoles={['catering_manager']}>
+                  <DashboardLayout role="catering_manager" />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<CateringManagerDashboard />} />
+              <Route path="packages" element={<PackagesAdmin />} />
+              <Route path="reservations" element={<ReservationsAdmin />} />
+              <Route path="event-bookings" element={<EventBookingsManager />} />
+              <Route path="tasks" element={<TasksManager />} />
+            </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 
