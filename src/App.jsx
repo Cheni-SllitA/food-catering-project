@@ -20,6 +20,7 @@ import MyOrders from './pages/customer/MyOrders'
 import OrderDetail from './pages/customer/OrderDetail'
 import MyReservations from './pages/customer/MyReservations'
 import ReservationDetail from './pages/customer/ReservationDetail'
+import Schedule from './pages/customer/schedule'
 
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ProductsAdmin from './pages/admin/ProductsAdmin'
@@ -32,6 +33,7 @@ import StaffAdmin from './pages/admin/StaffAdmin'
 import ReportsAdmin from './pages/admin/ReportsAdmin'
 
 import StaffTasks from './pages/staff/StaffTasks'
+import StaffInventory from './pages/staff/StaffInventory'
 
 import CateringManagerDashboard from './pages/catering-manager/CateringManagerDashboard'
 import EventBookingsManager from './pages/catering-manager/EventBookingsManager'
@@ -53,6 +55,7 @@ function App() {
               <Route path="/" element={<ProductCatalog />} />
               <Route path="/products/:id" element={<ProductDetail />} />
               <Route path="/packages" element={<PackagesList />} />
+              <Route path="/schedule" element={<Schedule />} />
               <Route path="/packages/:id" element={<PackageDetail />} />
 
               <Route
@@ -141,6 +144,7 @@ function App() {
               }
             >
               <Route index element={<StaffTasks />} />
+              <Route path="inventory" element={<StaffInventory />} />
             </Route>
 
             <Route

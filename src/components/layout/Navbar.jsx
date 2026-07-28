@@ -7,6 +7,7 @@ import { ROLE_HOME } from '../../lib/constants'
 const NAV_LINKS = [
   { to: '/', label: 'Products' },
   { to: '/packages', label: 'Catering Packages' },
+  { to: '/schedule', label: 'Schedule Event' },
 ]
 
 export default function Navbar() {
