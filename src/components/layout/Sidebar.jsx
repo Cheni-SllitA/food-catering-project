@@ -14,6 +14,7 @@ const NAV_BY_ROLE = {
   ],
   staff: [
     { to: '/staff', label: 'My Tasks', end: true },
+    { to: '/staff/inventory', label: 'Update Inventory' },
   ],
   catering_manager: [
     { to: '/catering-manager', label: 'Dashboard', end: true },

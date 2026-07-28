@@ -56,6 +56,16 @@ profiles for any existing users, and re-asserts the `carts` / `cart_items`
 policies. **Skipping this causes "row-level security policy" errors on
 signup and "cart couldn't be loaded" on login.**
 
+Then run [`schedule_and_staff_inventory.sql`](schedule_and_staff_inventory.sql).
+This backs two customer/staff pages:
+
+- `get_booked_event_dates()` RPC — powers the calendar on `/schedule`
+  (customer event booking) by exposing just the date + event type of
+  non-cancelled reservations, without leaking other customers' details.
+- Staff RLS policies on `products` and `inventory_transactions` — the
+  original policies only let `administrator` touch stock; this adds
+  `staff` as well (staff can only log transactions as themselves).
+
 ### 4. Create a Storage bucket for images
 
 In Supabase Storage, create two **public** buckets:
