@@ -18,6 +18,7 @@ const NAV_BY_ROLE = {
   ],
   catering_manager: [
     { to: '/catering-manager', label: 'Dashboard', end: true },
+    { to: '/catering-manager/orders', label: 'Orders' },
     { to: '/catering-manager/packages', label: 'Packages' },
     { to: '/catering-manager/reservations', label: 'Reservations' },
     { to: '/catering-manager/event-bookings', label: 'Event Bookings' },
