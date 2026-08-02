@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react'
 import { formatLKR } from '../../lib/format'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabaseClient'
+import { useAuth } from '../../contexts/AuthContext'
 import DataTable from '../../components/common/DataTable'
+import StatusBadge from '../../components/common/StatusBadge'
 import { Select, PageHeader } from '../../components/common/FormControls'
 import { ORDER_STATUS, PAYMENT_STATUS } from '../../lib/constants'
 
 export default function OrdersAdmin() {
+  const { role } = useAuth()
+  const canEdit = role === 'administrator'
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -37,7 +41,10 @@ export default function OrdersAdmin() {
 
   return (
     <div>
-      <PageHeader title="Orders" description="View and manage all customer orders" />
+      <PageHeader
+        title="Orders"
+        description={canEdit ? 'View and manage all customer orders' : 'View all customer orders'}
+      />
       <DataTable
         loading={loading}
         data={orders}
@@ -50,24 +57,30 @@ export default function OrdersAdmin() {
           {
             key: 'status',
             header: 'Status',
-            render: (row) => (
-              <Select value={row.status} onChange={(e) => updateStatus(row, 'status', e.target.value)} className="py-1">
-                {Object.values(ORDER_STATUS).map((s) => (
-                  <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
-                ))}
-              </Select>
-            ),
+            render: (row) =>
+              canEdit ? (
+                <Select value={row.status} onChange={(e) => updateStatus(row, 'status', e.target.value)} className="py-1">
+                  {Object.values(ORDER_STATUS).map((s) => (
+                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+                  ))}
+                </Select>
+              ) : (
+                <StatusBadge status={row.status} />
+              ),
           },
           {
             key: 'payment_status',
             header: 'Payment',
-            render: (row) => (
-              <Select value={row.payment_status} onChange={(e) => updateStatus(row, 'payment_status', e.target.value)} className="py-1">
-                {Object.values(PAYMENT_STATUS).map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </Select>
-            ),
+            render: (row) =>
+              canEdit ? (
+                <Select value={row.payment_status} onChange={(e) => updateStatus(row, 'payment_status', e.target.value)} className="py-1">
+                  {Object.values(PAYMENT_STATUS).map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </Select>
+              ) : (
+                <StatusBadge status={row.payment_status} />
+              ),
           },
         ]}
       />

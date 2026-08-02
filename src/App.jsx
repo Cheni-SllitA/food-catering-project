@@ -156,6 +156,7 @@ function App() {
               }
             >
               <Route index element={<CateringManagerDashboard />} />
+              <Route path="orders" element={<OrdersAdmin />} />
               <Route path="packages" element={<PackagesAdmin />} />
               <Route path="reservations" element={<ReservationsAdmin />} />
               <Route path="event-bookings" element={<EventBookingsManager />} />
