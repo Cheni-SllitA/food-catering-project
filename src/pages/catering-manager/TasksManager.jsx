@@ -11,6 +11,7 @@ export default function TasksManager() {
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
   const [assignOpen, setAssignOpen] = useState(false)
+  const [editingTask, setEditingTask] = useState(null)
 
   const load = async () => {
     setLoading(true)
@@ -45,12 +46,24 @@ export default function TasksManager() {
           { key: 'title', header: 'Task' },
           { key: 'staff', header: 'Assigned to', render: (row) => row.staff?.full_name || '-' },
           { key: 'reservation', header: 'Event', render: (row) => row.reservation ? `${row.reservation.event_location} — ${row.reservation.event_date ? new Date(row.reservation.event_date).toLocaleDateString() : ''}` : '-' },
+          { key: 'assigned_date', header: 'Date', render: (row) => new Date(row.assigned_date).toLocaleString() },
           { key: 'status', header: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+          {
+            key: 'actions',
+            header: '',
+            render: (row) => (
+              <button className="text-primary-600 hover:underline" onClick={() => setEditingTask(row)}>Edit</button>
+            ),
+          },
         ]}
       />
 
       {assignOpen && (
         <AssignTaskModal staffList={staff} reservations={reservations} onClose={() => setAssignOpen(false)} onAssigned={load} />
+      )}
+
+      {editingTask && (
+        <AssignTaskModal staffList={staff} reservations={reservations} task={editingTask} onClose={() => setEditingTask(null)} onAssigned={load} />
       )}
     </div>
   )
