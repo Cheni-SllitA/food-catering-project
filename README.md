@@ -66,6 +66,15 @@ This backs two customer/staff pages:
   original policies only let `administrator` touch stock; this adds
   `staff` as well (staff can only log transactions as themselves).
 
+Then run [`staff_creation_permissions.sql`](staff_creation_permissions.sql).
+Admin and Catering Manager both create staff accounts directly (full
+signup, not a "promote a customer" flow) via a real `auth.signUp()` call
+on an isolated client so it doesn't hijack the creator's own session; this
+file grants `catering_manager` the one-way RLS + trigger permission needed
+to flip that new account's role to `staff` (never to `administrator` or
+`catering_manager` — the policy is scoped so it can't be used to
+self-escalate).
+
 ### 4. Create a Storage bucket for images
 
 In Supabase Storage, create two **public** buckets:
