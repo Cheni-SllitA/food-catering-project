@@ -166,3 +166,15 @@ Enum values (`src/lib/constants.js` mirrors these):
 avoids overselling under concurrent checkouts (`SELECT ... FOR UPDATE` locks
 the product rows) and stops a malicious client from submitting a forged
 price — the function always reads the authoritative price from `products`.
+
+## Testing
+
+```bash
+npm test          # unit + integration tests (Vitest), run once
+npm run test:watch
+```
+
+See [TESTING.md](TESTING.md) for the full test plan — unit/integration test
+inventory, a manual System Test Plan (67 cases across auth, storefront, and
+all four dashboards), and a User Acceptance Testing plan with per-role
+sign-off sheets.
