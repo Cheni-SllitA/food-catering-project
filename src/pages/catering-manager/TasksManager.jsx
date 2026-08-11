@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import DataTable from '../../components/common/DataTable'
 import StatusBadge from '../../components/common/StatusBadge'
+import CreateStaffModal from '../../components/common/CreateStaffModal'
 import AssignTaskModal from '../../components/common/AssignTaskModal'
 import { Button, PageHeader } from '../../components/common/FormControls'
 
@@ -12,6 +13,7 @@ export default function TasksManager() {
   const [loading, setLoading] = useState(true)
   const [assignOpen, setAssignOpen] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
+  const [createStaffOpen, setCreateStaffOpen] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -34,10 +36,28 @@ export default function TasksManager() {
   return (
     <div>
       <PageHeader
-        title="Staff Tasks"
-        description="Assign event tasks to staff"
-        actions={<Button onClick={() => setAssignOpen(true)} disabled={staff.length === 0}>+ Assign task</Button>}
+        title="Staff & Tasks"
+        description="Create staff accounts and assign event tasks"
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => setCreateStaffOpen(true)}>+ Add Staff</Button>
+            <Button onClick={() => setAssignOpen(true)} disabled={staff.length === 0}>+ Assign task</Button>
+          </>
+        }
       />
+
+      <h2 className="mb-2 text-lg font-semibold text-stone-900">Staff members</h2>
+      <DataTable
+        loading={loading}
+        data={staff}
+        emptyMessage="No staff members yet"
+        columns={[
+          { key: 'full_name', header: 'Name', render: (row) => row.full_name || '-' },
+          { key: 'phone', header: 'Phone', render: (row) => row.phone || '-' },
+        ]}
+      />
+
+      <h2 className="mb-2 mt-8 text-lg font-semibold text-stone-900">Assigned tasks</h2>
       <DataTable
         loading={loading}
         data={tasks}
@@ -57,6 +77,10 @@ export default function TasksManager() {
           },
         ]}
       />
+
+      {createStaffOpen && (
+        <CreateStaffModal onClose={() => setCreateStaffOpen(false)} onCreated={load} />
+      )}
 
       {assignOpen && (
         <AssignTaskModal staffList={staff} reservations={reservations} onClose={() => setAssignOpen(false)} onAssigned={load} />

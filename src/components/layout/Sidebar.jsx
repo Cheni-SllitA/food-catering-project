@@ -22,7 +22,7 @@ const NAV_BY_ROLE = {
     { to: '/catering-manager/packages', label: 'Packages' },
     { to: '/catering-manager/reservations', label: 'Reservations' },
     { to: '/catering-manager/event-bookings', label: 'Event Bookings' },
-    { to: '/catering-manager/tasks', label: 'Staff Tasks' },
+    { to: '/catering-manager/tasks', label: 'Staff & Tasks' },
   ],
 }
 
