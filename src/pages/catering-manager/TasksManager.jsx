@@ -53,6 +53,7 @@ export default function TasksManager() {
         emptyMessage="No staff members yet"
         columns={[
           { key: 'full_name', header: 'Name', render: (row) => row.full_name || '-' },
+          { key: 'address', header: 'Address', render: (row) => row.address || '-' },
           { key: 'phone', header: 'Phone', render: (row) => row.phone || '-' },
         ]}
       />

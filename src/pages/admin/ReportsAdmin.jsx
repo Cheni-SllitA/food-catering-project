@@ -59,9 +59,20 @@ export default function ReportsAdmin() {
     setChartsLoading(false)
   }
 
+  const checkBucket = async () => {
+    // Proactively surface a missing/misconfigured bucket on page load —
+    // not just after a failed "Generate", since existing report rows can
+    // point at a bucket that's since been removed (Download then 404s).
+    const { error } = await supabase.storage.from('reports').list('', { limit: 1 })
+    if (error && error.message?.toLowerCase().includes('bucket not found')) {
+      setBucketMissing(true)
+    }
+  }
+
   useEffect(() => {
     load()
     loadChartData()
+    checkBucket()
   }, [])
 
   const handleGenerate = async () => {
@@ -163,8 +174,9 @@ export default function ReportsAdmin() {
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
           <p className="font-semibold">Storage bucket "reports" not found (404)</p>
           <p className="mt-1">
-            Report generation uploads a CSV to a Supabase Storage bucket named exactly <code className="rounded bg-red-100 px-1">reports</code>,
-            which doesn't exist yet in this project. To fix it:
+            Reports are stored in a Supabase Storage bucket named exactly <code className="rounded bg-red-100 px-1">reports</code>,
+            which doesn't exist in this project right now — this is why generating a new report fails,
+            and why Download links on existing report rows return a 404. To fix it:
           </p>
           <ol className="mt-2 list-decimal space-y-1 pl-5">
             <li>Open your Supabase dashboard → <strong>Storage</strong> → <strong>New bucket</strong></li>

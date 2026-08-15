@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../contexts/AuthContext'
+import { useCategories } from '../../hooks/useCategories'
 import DataTable from '../../components/common/DataTable'
 import Modal from '../../components/common/Modal'
 import { Button, Input, Select, PageHeader } from '../../components/common/FormControls'
@@ -15,13 +16,26 @@ const TXN_TYPES = [
   { value: 'adjustment', label: 'Adjustment / loss (stock out)', direction: -1 },
 ]
 
+const NEW_ITEM_FORM = {
+  product_name: '',
+  category_id: '',
+  unit: '',
+  price: '',
+  stock_quantity: '',
+}
+
 export default function InventoryAdmin() {
   const { user } = useAuth()
+  const { categories } = useCategories()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [adjustProduct, setAdjustProduct] = useState(null)
   const [form, setForm] = useState({ type: 'purchase', quantity: '', reference: '' })
   const [saving, setSaving] = useState(false)
+
+  const [addOpen, setAddOpen] = useState(false)
+  const [newItem, setNewItem] = useState(NEW_ITEM_FORM)
+  const [addSaving, setAddSaving] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -83,9 +97,63 @@ export default function InventoryAdmin() {
     }
   }
 
+  const openAdd = () => {
+    setNewItem(NEW_ITEM_FORM)
+    setAddOpen(true)
+  }
+
+  const handleAddItem = async (e) => {
+    e.preventDefault()
+    if (!newItem.product_name.trim() || !newItem.unit.trim()) {
+      toast.error('Enter a product name and unit')
+      return
+    }
+    const initialStock = Number(newItem.stock_quantity) || 0
+    setAddSaving(true)
+    try {
+      const { data: created, error: insertError } = await supabase
+        .from('products')
+        .insert({
+          product_name: newItem.product_name,
+          category_id: newItem.category_id || null,
+          unit: newItem.unit,
+          price: Number(newItem.price) || 0,
+          stock_quantity: initialStock,
+          is_active: true,
+        })
+        .select()
+        .single()
+      if (insertError) throw insertError
+
+      if (initialStock > 0) {
+        const { error: txError } = await supabase.from('inventory_transactions').insert({
+          product_id: created.id,
+          transaction_type: 'purchase',
+          quantity: initialStock,
+          reference: 'Initial stock',
+          created_by: user.id,
+        })
+        if (txError) throw txError
+      }
+
+      toast.success('Inventory item added')
+      setAddOpen(false)
+      await load()
+    } catch (err) {
+      console.error(err)
+      toast.error(err.message || 'Could not add item')
+    } finally {
+      setAddSaving(false)
+    }
+  }
+
   return (
     <div>
-      <PageHeader title="Inventory" description="Adjust stock levels and track movements" />
+      <PageHeader
+        title="Inventory"
+        description="Adjust stock levels and track movements"
+        actions={<Button onClick={openAdd}>+ Add Item</Button>}
+      />
 
       <DataTable
         loading={loading}
@@ -130,6 +198,56 @@ export default function InventoryAdmin() {
             <div className="flex justify-end gap-2">
               <Button type="button" variant="secondary" onClick={() => setAdjustProduct(null)}>Cancel</Button>
               <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {addOpen && (
+        <Modal open onClose={() => setAddOpen(false)} title="Add inventory item">
+          <form onSubmit={handleAddItem} className="flex flex-col gap-4">
+            <Input
+              label="Product name"
+              required
+              value={newItem.product_name}
+              onChange={(e) => setNewItem((f) => ({ ...f, product_name: e.target.value }))}
+            />
+            <Select
+              label="Category"
+              value={newItem.category_id}
+              onChange={(e) => setNewItem((f) => ({ ...f, category_id: e.target.value }))}
+            >
+              <option value="">Uncategorized</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.category_name}</option>
+              ))}
+            </Select>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Unit (e.g. kg, pack)"
+                required
+                value={newItem.unit}
+                onChange={(e) => setNewItem((f) => ({ ...f, unit: e.target.value }))}
+              />
+              <Input
+                label="Price (LKR)"
+                type="number"
+                step="0.01"
+                min="0"
+                value={newItem.price}
+                onChange={(e) => setNewItem((f) => ({ ...f, price: e.target.value }))}
+              />
+            </div>
+            <Input
+              label="Initial stock quantity"
+              type="number"
+              min="0"
+              value={newItem.stock_quantity}
+              onChange={(e) => setNewItem((f) => ({ ...f, stock_quantity: e.target.value }))}
+            />
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={() => setAddOpen(false)}>Cancel</Button>
+              <Button type="submit" disabled={addSaving}>{addSaving ? 'Adding...' : 'Add Item'}</Button>
             </div>
           </form>
         </Modal>
