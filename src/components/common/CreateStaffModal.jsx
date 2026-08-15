@@ -6,7 +6,7 @@ import Modal from './Modal'
 import { Input, Button } from './FormControls'
 
 export default function CreateStaffModal({ onClose, onCreated }) {
-  const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '' })
+  const [form, setForm] = useState({ fullName: '', email: '', phone: '', address: '', password: '' })
   const [saving, setSaving] = useState(false)
 
   const handleSubmit = async (e) => {
@@ -31,12 +31,22 @@ export default function CreateStaffModal({ onClose, onCreated }) {
       const newUserId = data.user?.id
       if (!newUserId) throw new Error('Account created but no user id was returned — please retry')
 
-      // The on_auth_user_created trigger already created a profiles row with
-      // role 'customer'; flip it to staff. Allowed for administrator and
-      // catering_manager (the latter can only ever set role to 'staff' —
-      // see prevent_role_self_escalation / profiles_update_staff_role_cm).
-      const { error: roleError } = await supabase.from('profiles').update({ role: 'staff' }).eq('id', newUserId)
-      if (roleError) throw roleError
+      // The on_auth_user_created trigger already created a profiles row from
+      // the signup metadata (full_name, phone) with role 'customer'. Set
+      // role/full_name/phone/address explicitly here too rather than relying
+      // solely on the trigger — this is the one place that writes `address`
+      // (the trigger doesn't collect it), and being explicit makes this
+      // reliable regardless of what the trigger did or didn't capture.
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          role: 'staff',
+          full_name: form.fullName,
+          phone: form.phone || null,
+          address: form.address || null,
+        })
+        .eq('id', newUserId)
+      if (profileError) throw profileError
 
       toast.success('Staff account created')
       onCreated?.()
@@ -60,6 +70,7 @@ export default function CreateStaffModal({ onClose, onCreated }) {
         <Input label="Full name" required value={form.fullName} onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))} />
         <Input label="Email" type="email" required value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
         <Input label="Phone (optional)" type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
+        <Input label="Address (optional)" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} />
         <Input
           label="Temporary password"
           type="password"
