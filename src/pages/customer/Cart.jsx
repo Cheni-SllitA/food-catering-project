@@ -34,37 +34,39 @@ export default function Cart() {
             {items.map((item) => {
               const stock = item.product?.stock_quantity ?? Infinity
               return (
-                <li key={item.id} className="flex items-center gap-4 p-4">
+                <li key={item.id} className="flex flex-wrap items-center gap-3 p-4 sm:gap-4">
                   <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-stone-100">
                     {item.product?.image_url && (
                       <img src={item.product.image_url} alt={item.product?.product_name} className="h-full w-full object-cover" />
                     )}
                   </div>
-                  <div className="flex-1">
+                  <div className="min-w-[140px] flex-1">
                     <p className="font-medium text-stone-900">{item.product?.product_name}</p>
                     <p className="text-sm text-stone-500">{formatLKR(item.unit_price)} / {item.product?.unit}</p>
                     {item.quantity > stock && (
                       <p className="text-xs text-red-600">Only {stock} left in stock</p>
                     )}
                   </div>
-                  <input
-                    type="number"
-                    min={1}
-                    max={stock === Infinity ? undefined : stock}
-                    value={item.quantity}
-                    onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
-                    className="w-16 rounded-md border border-stone-300 px-2 py-1 text-sm"
-                  />
-                  <p className="w-20 text-right font-medium text-stone-900">
-                    {formatLKR(Number(item.unit_price ?? 0) * item.quantity)}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(item.id)}
-                    className="text-sm text-red-600 hover:underline"
-                  >
-                    Remove
-                  </button>
+                  <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+                    <input
+                      type="number"
+                      min={1}
+                      max={stock === Infinity ? undefined : stock}
+                      value={item.quantity}
+                      onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
+                      className="w-16 rounded-md border border-stone-300 px-2 py-1 text-sm"
+                    />
+                    <p className="w-20 text-right font-medium text-stone-900">
+                      {formatLKR(Number(item.unit_price ?? 0) * item.quantity)}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(item.id)}
+                      className="text-sm text-red-600 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </li>
               )
             })}

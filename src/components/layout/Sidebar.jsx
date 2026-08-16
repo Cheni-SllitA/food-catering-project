@@ -32,30 +32,42 @@ const ROLE_LABEL = {
   catering_manager: 'Sahan Manager',
 }
 
-export default function Sidebar({ role }) {
+export default function Sidebar({ role, open, onClose }) {
   const links = NAV_BY_ROLE[role] ?? []
 
   return (
-    <aside className="m-4 flex w-56 shrink-0 flex-col self-start rounded-xl border border-stone-300 bg-white">
-      <div className="border-b border-stone-200 px-5 py-4">
-        <p className="font-bold text-primary-700">{ROLE_LABEL[role]}</p>
-      </div>
-      <nav className="flex flex-col gap-1 p-3">
-        {links.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.end}
-            className={({ isActive }) =>
-              `rounded-lg px-4 py-2.5 text-sm font-medium transition ${
-                isActive ? 'bg-primary-600 text-white' : 'text-stone-600 hover:bg-primary-50 hover:text-primary-700'
-              }`
-            }
-          >
-            {link.label}
-          </NavLink>
-        ))}
-      </nav>
-    </aside>
+    <>
+      {/* Mobile-only backdrop, closes the drawer on tap */}
+      {open && (
+        <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={onClose} aria-hidden="true" />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-64 overflow-y-auto border-r border-stone-300 bg-white transition-transform duration-200 ease-out md:static md:z-auto md:m-4 md:h-fit md:w-56 md:translate-x-0 md:rounded-xl md:border md:transition-none ${
+          open ? 'translate-x-0 shadow-xl' : '-translate-x-full'
+        }`}
+      >
+        <div className="border-b border-stone-200 px-5 py-4">
+          <p className="font-bold text-primary-700">{ROLE_LABEL[role]}</p>
+        </div>
+        <nav className="flex flex-col gap-1 p-3">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.end}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `rounded-lg px-4 py-2.5 text-sm font-medium transition ${
+                  isActive ? 'bg-primary-600 text-white' : 'text-stone-600 hover:bg-primary-50 hover:text-primary-700'
+                }`
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+    </>
   )
 }
